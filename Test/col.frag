@@ -50,7 +50,7 @@ float CalculatePositionalIllumination()
 
 float CalculateSpotIllumination()
 {
-	float ambient = 0.1;
+	float ambient = 0.5;
 
 	vec3 NToLight = normalize(lightPos - FragPos);
 	vec3 NFromLight = -NToLight;
@@ -74,9 +74,9 @@ float CalculateSpotIllumination()
 void main()
 {
 	//vec4 col = texture(Texture, tex);
-	//vec3 col2 = col.xyz;
-	//float phong = CalculateDirectionalIllumination();
+	float phong = CalculatePositionalIllumination();
 	//fragCol = vec4(phong * col2 * lightColour, 1.f);
 	//fragCol = vec4(1.f, 0.f, 0.f, 1.f);
-	fragCol = texture(Texture, tex);
+	vec4 col = texture(Texture, tex);
+	fragCol =  vec4(phong * col.xyz * lightColour, 1.f);
 }

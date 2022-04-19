@@ -14,9 +14,23 @@
 #include "texture.h"
 #include "global.h"
 
+//Directional Light
+glm::vec3 dLightDirection = glm::vec3(0.0f, -1.f, 0.0f);
+glm::vec3 dLightColour = glm::vec3(1.f, 1.f, 1.f);
 
-glm::vec3 lightDirection = glm::vec3(0.1, -.81f, -.61f);
-glm::vec3 lightPos = glm::vec3(2.f, 6.f, 7.f);
+//Positional Light
+glm::vec3 pLightDirection = glm::vec3(0.0f, -1.f, 0.0f);
+glm::vec3 pLightPos = glm::vec3(0.0f,  0.5f, 0.0f);
+glm::vec3 pLightColour = glm::vec3(1.f, 1.f, 1.f);
+
+//Spot Light
+glm::vec3 sLightDirection = glm::vec3(0.0f, -1.f, 0.0f);
+glm::vec3 sLightPos = glm::vec3(0.0f, 0.5f, 0.0f);
+glm::vec3 sLightColour = glm::vec3(1.f, 1.f, 1.f);
+
+
+//glm::vec3 lightDirection = glm::vec3(0.0f, -1.0f, 0.0f);
+//glm::vec3 lightPos = glm::vec3(0.f, -2.f, 0.f);
 
 glm::vec3 cube_pos = glm::vec3(0.0f, 0.0f, 0.0f);
 SCamera Camera;
@@ -171,13 +185,13 @@ int ProduceMagicCube(unsigned VAO, unsigned int VBO, vector<string>& text_file)
 int ProduceFloor(unsigned int VAO, unsigned int VBO,  vector<string> &text_file)
 {
 	vector<float> vertices = {
-		-1.f, 1.0f, 0.f,	0.f, 1.f, 0.f,	0.f, 1.f,
-		-0.5f, -1.0f, 0.f,  0.f, 1.f, 0.f,	1.f, 0.f,
-		-1.f, -1.0f, 0.f,	0.f, 1.f, 0.f,	0.f, 0.f,
+		-1.f, 1.0f, 0.f,	0.f, 0.f, 1.f,	0.f, 1.f,
+		-0.5f, -1.0f, 0.f,  0.f, 0.f, 1.f,	1.f, 0.f,
+		-1.f, -1.0f, 0.f,	0.f, 0.f, 1.f,	0.f, 0.f,
 		
-		-1.f, 1.0f, 0.f,	0.f, 1.f, 0.f,	0.f, 1.f,
-		-0.5f, 1.0f, 0.f,	0.f, 1.f, 0.f,	1.f, 1.f,
-		-0.5f, -1.0f, 0.f,	0.f, 1.f, 0.f,	1.f, 0.f,
+		-1.f, 1.0f, 0.f,	0.f, 0.f, 1.f,	0.f, 1.f,
+		-0.5f, 1.0f, 0.f,	0.f, 0.f, 1.f,	1.f, 1.f,
+		-0.5f, -1.0f, 0.f,	0.f, 0.f, 1.f,	1.f, 0.f,
 	};
 
 	text_file.emplace_back("wall.bmp");
@@ -299,8 +313,8 @@ void processKeyboard(GLFWwindow* window)
 
 	if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
 	{
-		lightDirection = Camera.Front;
-		lightPos = Camera.Position;
+		sLightDirection = Camera.Front;
+		sLightPos = Camera.Position;
 	}
 
 	bool cam_changed = false;
@@ -321,14 +335,14 @@ void processKeyboard(GLFWwindow* window)
 	if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
 	{
 		x = 0.f;
-		y = 1.f;
+		y = -1.f;
 		cam_changed = true;
 	}
 
 	if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
 	{
 		x = 0.f;
-		y = -1.f;
+		y = 1.f;
 		cam_changed = true;
 	}
 
@@ -408,11 +422,21 @@ int main(int argc, char** argv)
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
-		//light
-		glUniform3f(glGetUniformLocation(shaderProgram, "lightDirection"), lightDirection.x, lightDirection.y, lightDirection.z);
-		glUniform3f(glGetUniformLocation(shaderProgram, "lightPos"), lightPos.x, lightPos.y, lightPos.z);
-		glUniform3f(glGetUniformLocation(shaderProgram, "lightColour"), 1.f, 1.f, 1.f);
 		glUniform3f(glGetUniformLocation(shaderProgram, "camPos"), Camera.Position.x, Camera.Position.y, Camera.Position.z);
+
+		//Directional Light
+		glUniform3f(glGetUniformLocation(shaderProgram, "dLightDirection"), dLightDirection.x, dLightDirection.y, dLightDirection.z);
+		glUniform3f(glGetUniformLocation(shaderProgram, "dLightColour"), 1.f, 1.f, 1.f);
+
+		//Positional Light
+		glUniform3f(glGetUniformLocation(shaderProgram, "pLightDirection"), pLightDirection.x, pLightDirection.y, pLightDirection.z);
+		glUniform3f(glGetUniformLocation(shaderProgram, "pLightPos"), pLightPos.x, pLightPos.y, pLightPos.z);
+		glUniform3f(glGetUniformLocation(shaderProgram, "pLightColour"), pLightColour.x, pLightColour.y, pLightColour.z);
+
+		//Spot Light
+		glUniform3f(glGetUniformLocation(shaderProgram, "sLightDirection"), sLightDirection.x, sLightDirection.y, sLightDirection.z);
+		glUniform3f(glGetUniformLocation(shaderProgram, "sLightPos"), sLightPos.x, sLightPos.y, sLightPos.z);
+		glUniform3f(glGetUniformLocation(shaderProgram, "sLightColour"), sLightColour.x, sLightColour.y, sLightColour.z);
 
 
 		setViewProjection();

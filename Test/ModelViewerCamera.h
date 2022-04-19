@@ -20,5 +20,6 @@ void MoveAndOrientCamera(SCamera& in, glm::vec3 target, float distance, float xo
 
 	in.Front = glm::normalize(target - in.Position);
 	in.Right = glm::normalize(glm::cross(in.Front, in.WorldUp));
+	/*in.Right = glm::normalize(glm::cross(in.WorldUp, in.Front));*/
 	in.Up = glm::normalize(glm::cross(in.Right, in.Front));
 }
