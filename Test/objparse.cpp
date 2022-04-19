@@ -179,7 +179,7 @@ void parse_obj(string filename, vector<float> &vertex, vector<string>& text_file
 			vertex.push_back(info.normal[(info.face[fIdx * 9 + j * 3 + 2] - 1) * 3]);
 			vertex.push_back(info.normal[(info.face[fIdx * 9 + j * 3 + 2] - 1) * 3 + 1]);
 			vertex.push_back(info.normal[(info.face[fIdx * 9 + j * 3 + 2] - 1) * 3 + 2]);
-
+			
 			vertex.push_back(info.uv[(info.face[fIdx * 9 + j * 3 + 1] - 1) * 3]);
 			vertex.push_back(info.uv[(info.face[fIdx * 9 + j * 3 + 1] - 1) * 3 + 1]);
 		}

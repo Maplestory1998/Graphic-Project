@@ -270,8 +270,9 @@ void setViewProjection()
 void transformGlobal( )
 {
 	glm::mat4 model = glm::mat4(1.f);
-	model = glm::translate(model, glm::vec3(-0.5f, 0.25f, -0.8f));
-	model = glm::scale(model, glm::vec3(0.03f, 0.03f, 0.03f));
+	model = glm::translate(model, glm::vec3(-0.7f, 0.32f, -0.83f));
+	model = glm::rotate(model, (float)glfwGetTime() / 2, glm::vec3(0.f, 1.f, 0.f));
+	model = glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));
 	glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, glm::value_ptr(model));
 }
 
@@ -279,7 +280,11 @@ void transformGlobal( )
 void transformGuitar()
 {
 	glm::mat4 model = glm::mat4(1.f);
-	model = glm::translate(model, cube_pos);
+	model = glm::translate(model, glm::vec3(0.3f, 0.3f, -0.93f));
+	model = glm::scale(model, glm::vec3(0.45f, 0.45f, 0.45f));
+
+	model = glm::rotate(model, glm::radians(-90.f), glm::vec3(1.f, 0.f, 0.f));
+	model = glm::rotate(model, glm::radians(-90.f), glm::vec3(0.f, 0.f, 1.f));
 	glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, glm::value_ptr(model));
 
 }
@@ -371,7 +376,7 @@ int main(int argc, char** argv)
 	int VertexSize0 = ProduceGlobal(VAO[0], VBO[0], text_file);
 
 	///*guitar*/
-	//int VertexSize1 = ProduceGuitar(VAO[1], VBO[1], text_file);
+	int VertexSize1 = ProduceGuitar(VAO[1], VBO[1], text_file);
 
 	// The floor
 	int VertexSize2 = ProduceFloor(VAO[2], VBO[2], text_file);
@@ -422,13 +427,13 @@ int main(int argc, char** argv)
 
 
 		//guitar
-		//transformGuitar();
-		//glBindTexture(GL_TEXTURE, t_guitar);
-		//glUseProgram(shaderProgram);
-		//glBindVertexArray(VAO[1]);
-		//glDrawArrays(GL_TRIANGLES, 0, VertexSize1);
+		transformGuitar();
+		glBindTexture(GL_TEXTURE_2D, texture[1]);
+		glUseProgram(shaderProgram);
+		glBindVertexArray(VAO[1]);
+		glDrawArrays(GL_TRIANGLES, 0, VertexSize1);
 
-		//floo
+		//floor
 		for(int i = 0; i < 4; ++i)
 		{
 			glm::mat4 model = glm::mat4(1.f);
@@ -436,7 +441,7 @@ int main(int argc, char** argv)
 			model = glm::rotate(model, glm::radians(-90.f), glm::vec3(1.f, 0.f, 0.f));
 
 			glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, glm::value_ptr(model));
-			glBindTexture(GL_TEXTURE_2D, texture[1]);
+			glBindTexture(GL_TEXTURE_2D, texture[2]);
 			glUseProgram(shaderProgram);
 			glBindVertexArray(VAO[2]);
 			glDrawArrays(GL_TRIANGLES, 0, VertexSize2);
@@ -449,7 +454,7 @@ int main(int argc, char** argv)
 		model = glm::scale(model, glm::vec3(0.005f, 0.003f, 0.005f));
 		glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, glm::value_ptr(model));
 
-		glBindTexture(GL_TEXTURE_2D, texture[2]);
+		glBindTexture(GL_TEXTURE_2D, texture[3]);
 		glUseProgram(shaderProgram);
 		glBindVertexArray(VAO[3]);
 		glDrawArrays(GL_TRIANGLES, 0, VertexSize3);
@@ -461,7 +466,7 @@ int main(int argc, char** argv)
 		model = glm::scale(model, glm::vec3(0.4f, 0.4f, 0.4f));
 		glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, glm::value_ptr(model));
 
-		glBindTexture(GL_TEXTURE_2D, texture[3]);
+		glBindTexture(GL_TEXTURE_2D, texture[4]);
 		glUseProgram(shaderProgram);
 		glBindVertexArray(VAO[4]);
 		glDrawArrays(GL_TRIANGLES, 0, VertexSize4);
@@ -473,7 +478,7 @@ int main(int argc, char** argv)
 
 		glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, glm::value_ptr(model));
 
-		glBindTexture(GL_TEXTURE_2D, texture[4]);
+		glBindTexture(GL_TEXTURE_2D, texture[5]);
 		glUseProgram(shaderProgram);
 		glBindVertexArray(VAO[5]);
 		glDrawArrays(GL_TRIANGLES, 0, VertexSize5);
@@ -483,7 +488,7 @@ int main(int argc, char** argv)
 
 		glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, glm::value_ptr(model));
 
-		glBindTexture(GL_TEXTURE_2D, texture[4]);
+		glBindTexture(GL_TEXTURE_2D, texture[5]);
 		glUseProgram(shaderProgram);
 		glBindVertexArray(VAO[6]);
 		glDrawArrays(GL_TRIANGLES, 0, VertexSize6);
