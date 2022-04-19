@@ -1,17 +1,31 @@
 #version 330 core
 
-
 in vec2 tex;
 in vec3 nor;
 in vec3 FragPos;
 
 out vec4 fragCol;
 
-uniform vec3 lightColour;
-uniform vec3 lightDirection;
-uniform vec3 lightPos;
+//uniform vec3 lightColour;
+//uniform vec3 lightDirection;
+//uniform vec3 lightPos;
+
 uniform vec3 camPos;
+uniform vec3 dLightDirection;
+uniform vec3 dLightColour;
+
+uniform vec3 pLightDirection;
+uniform vec3 pLightPos;
+uniform vec3 pLightColour;
+
+
+uniform vec3 sLightDirection;
+uniform vec3 sLightPos;
+uniform vec3 sLightColour;
+
 uniform sampler2D Texture;
+
+
 
 float CalculateAttenuation()
 {

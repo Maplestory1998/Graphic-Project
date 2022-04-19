@@ -372,7 +372,7 @@ int main(int argc, char** argv)
 
 	gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
 
-	shaderProgram = LoadShader("mvp.vert", "col.frag");
+	shaderProgram = LoadShader("mvp.vert", "test.frag");
 
 	InitCamera(Camera, 90.0f, 0);
 	MoveAndOrientCamera(Camera, glm::vec3(0, 0, 0), cam_dist, 0.f, 0.f);

@@ -163,6 +163,7 @@
   <ItemGroup>
     <None Include="col.frag" />
     <None Include="mvp.vert" />
+    <None Include="test.frag" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
