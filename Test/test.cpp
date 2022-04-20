@@ -29,14 +29,14 @@ glm::vec3 sLightDirection = glm::vec3(0.0f, -1.f, 0.0f);
 glm::vec3 sLightPos = glm::vec3(0.0f, 0.5f, 0.0f);
 glm::vec3 sLightColour = glm::vec3(1.f, 0.f, 0.f);
 
-
+// origin
 glm::vec3 cube_pos = glm::vec3(0.0f, 0.0f, 0.0f);
 
 
 
 //ModelViewerCamera
 SCamera Camera1;
-//FlyThroughCamera.h
+//FlyThroughCamera
 SCamera Camera2;
 enum CameraType
 {
@@ -46,14 +46,14 @@ enum CameraType
 
 CameraType Camera = ModelViewer;
 
-
-
+//used for FlyThrought camera
 bool firstMouse = true;
 float prevMouseX;
 float prevMouseY;
 
 unsigned int shaderProgram;
 
+//Produce 4 WAlls, return numbers of vertices
 int ProduceWall(unsigned int VAO, unsigned int VBO)
 {
 	vector<float> vertices = {
@@ -99,6 +99,9 @@ int ProduceWall(unsigned int VAO, unsigned int VBO)
 	return 18;
 }
 
+
+//Produce object by parsing obj file, return numbers of vertices
+//NB: It is used for producing guitar, chair and desk;
 int ProduceObjectByObj(const string &filename, unsigned int VAO, unsigned int VBO, vector<string>& text_file)
 {
 	vector<float> vertices;
@@ -127,7 +130,7 @@ int ProduceMagicCube(unsigned VAO, unsigned int VBO, vector<string>& text_file)
 {
 	vector<float> vertices = {
 		//back face
-		//pos					//normal
+		//pos					//normal				//uv
 		-0.5f, -0.5f, -0.5f,  	0.0f, 0.0f, -1.0f,		0.25f,	2.0f / 3.0f,
 		0.5f, -0.5f, -0.5f,  	0.0f, 0.0f, -1.0f,		0.5f,	2.0f / 3.0f,
 		0.5f,  0.5f, -0.5f,  	0.0f, 0.0f, -1.0f,		0.5f,	1.0f,
@@ -178,7 +181,6 @@ int ProduceMagicCube(unsigned VAO, unsigned int VBO, vector<string>& text_file)
 	};
 
 
-	cout << vertices.size() << endl;
 	text_file.emplace_back("magiccube.bmp");
 
 	glBindVertexArray(VAO);
@@ -199,6 +201,7 @@ int ProduceMagicCube(unsigned VAO, unsigned int VBO, vector<string>& text_file)
 
 }
 
+//proce one piece floor, full floor is created  procedurally
 int ProduceFloor(unsigned int VAO, unsigned int VBO,  vector<string> &text_file)
 {
 	vector<float> vertices = {
@@ -235,16 +238,20 @@ int ProduceGlobal(unsigned int VAO, unsigned int VBO, vector<string>& text_file)
 {
 	vector<float> vertices;
 	vector<unsigned int> indices;
-	CreateGlobal(vertices, indices);
+
+	//Create Global vertex data procedurally
+	GetGlobalData(vertices, indices);
 	text_file.emplace_back("R.bmp");
 
 	glBindVertexArray(VAO);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), &vertices[0], GL_STATIC_DRAW);
 
-	GLuint element_buffer_object;
-	glGenBuffers(1, &element_buffer_object);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, element_buffer_object);
+
+	
+	GLuint EBO;
+	glGenBuffers(1, &EBO);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(float), &indices[0], GL_STATIC_DRAW);
 
 	//position
@@ -260,32 +267,7 @@ int ProduceGlobal(unsigned int VAO, unsigned int VBO, vector<string>& text_file)
 	return indices.size();
 }
 
-
-
-
-int ProduceGuitar(unsigned int VAO, unsigned int VBO, vector<string>& text_file)
-{
-	vector<float> vertices;
-	parse_obj("nmah-2018_0136_01-feliciano_guitar-150k_watertight_model.obj", vertices, text_file);
-	
-	glBindVertexArray(VAO);
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), &vertices[0], GL_STATIC_DRAW);
-
-	//position
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(0);
-	//normal
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
-	glEnableVertexAttribArray(1);
-	//texture
-	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
-	glEnableVertexAttribArray(2);
-	
-	return vertices.size() / 8;
-	
-}
-
+//View and Projection transform
 void setViewProjection(SCamera &Camera)
 {
 	glm::mat4 view = glm::mat4(1.f);
@@ -298,7 +280,7 @@ void setViewProjection(SCamera &Camera)
 }
 
 
-void transformGlobal( )
+inline void transformGlobal( )
 {
 	glm::mat4 model = glm::mat4(1.f);
 	model = glm::translate(model, glm::vec3(-0.7f, 0.32f, -0.83f));
@@ -308,7 +290,7 @@ void transformGlobal( )
 }
 
 
-void transformGuitar()
+inline void transformGuitar()
 {
 	glm::mat4 model = glm::mat4(1.f);
 	model = glm::translate(model, glm::vec3(0.3f, 0.3f, -0.93f));
@@ -320,19 +302,45 @@ void transformGuitar()
 
 }
 
+inline void transformChair()
+{
+	glm::mat4 model = glm::mat4(1.f);
+	model = glm::translate(model, glm::vec3(-0.56f, 0.0f, -0.4f));
+	model = glm::rotate(model, glm::radians(180.f), glm::vec3(0.f, 1.f, 0.f));
+	model = glm::scale(model, glm::vec3(0.4f, 0.4f, 0.4f));
 
+	glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, glm::value_ptr(model));
+}
+
+inline void transformDesk()
+{
+	glm::mat4 model = glm::mat4(1.f);
+	model = glm::translate(model, glm::vec3(-0.58f, 0.22f, -0.8f));
+	model = glm::scale(model, glm::vec3(0.005f, 0.003f, 0.005f));
+	glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, glm::value_ptr(model));
+}
+
+inline void transformMagicCube()
+{
+	glm::mat4 model = glm::mat4(1.f);
+	model = glm::translate(model, glm::vec3(-0.35f, 0.27f, -0.8f));
+	model = glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));
+	glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, glm::value_ptr(model));
+}
 
 
 void processKeyboard(GLFWwindow* window)
 {
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, true);
-
+	
+	//Change Camera by pressing  C;
 	if (glfwGetKey(window, GLFW_KEY_C) == GLFW_PRESS)
 	{
 		Camera = Camera == ModelViewer ? FlyThrough : ModelViewer;
 	}
 
+	//change the position of Spot Light into Camera Position;
 	if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
 	{
 		sLightDirection = Camera == ModelViewer? Camera1.Front : Camera2.Front;
@@ -422,20 +430,19 @@ void processMouse(GLFWwindow* window, double x, double y)
 int main(int argc, char** argv)
 {
 	GLFWwindow* window = CreateGLFWWindow(1920, 1080, "Test");
+	
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 	glfwSetCursorPosCallback(window, processMouse);
-
-
-
-
 
 	gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
 
 	shaderProgram = LoadShader("mvp.vert", "test.frag");
 
+	//Init ModelViewer Camera
 	InitCamera(Camera1, 90.0f, 0);
 	MoveAndOrientCamera(Camera1, glm::vec3(0, 0, 0), cam_dist, 0.f, 0.f);
 
+	//Init FlyThrough Camera
 	InitCamera(Camera2, 90.f, 0);
 	OrientCamera(Camera2, 0.f, 0.f);
 
@@ -445,19 +452,19 @@ int main(int argc, char** argv)
 	glGenBuffers(7, VBO);
 
 	vector<GLuint> texture;
+	//array of BMP file
 	vector<string> text_file;
 
 	//global
 	int VertexSize0 = ProduceGlobal(VAO[0], VBO[0], text_file);
 
 	///*guitar*/
-	int VertexSize1 = ProduceGuitar(VAO[1], VBO[1], text_file);
+	int VertexSize1 = ProduceObjectByObj("nmah-2018_0136_01-feliciano_guitar-150k_watertight_model.obj", VAO[1], VBO[1], text_file);
 
 	// The floor
 	int VertexSize2 = ProduceFloor(VAO[2], VBO[2], text_file);
 
 	//the desk
-
 	int VertexSize3 = ProduceObjectByObj("Desk.obj", VAO[3], VBO[3], text_file);
 
 	//chair
@@ -466,6 +473,7 @@ int main(int argc, char** argv)
 	//magic cube
 	int VertexSize5 = ProduceMagicCube(VAO[5], VBO[5], text_file);
 
+	//Wall
 	int VertexSize6 = ProduceWall(VAO[6], VBO[6]);
 
 	texture = setup_texture(text_file);
@@ -502,11 +510,11 @@ int main(int argc, char** argv)
 		glUniform3f(glGetUniformLocation(shaderProgram, "sLightPos"), sLightPos.x, sLightPos.y, sLightPos.z);
 		glUniform3f(glGetUniformLocation(shaderProgram, "sLightColour"), sLightColour.x, sLightColour.y, sLightColour.z);
 
+		/* 3D transform*/
 		if (Camera == ModelViewer)
 			setViewProjection(Camera1);
 		else
 			setViewProjection(Camera2);
-		/* 3D transform*/
 
 		//global
 		transformGlobal();
@@ -535,53 +543,46 @@ int main(int argc, char** argv)
 			glUseProgram(shaderProgram);
 			glBindVertexArray(VAO[2]);
 			glDrawArrays(GL_TRIANGLES, 0, VertexSize2);
-
 		}
 
 		//desk
-		glm::mat4 model = glm::mat4(1.f);
-		model = glm::translate(model, glm::vec3(-0.58f, 0.22f, -0.8f));
-		model = glm::scale(model, glm::vec3(0.005f, 0.003f, 0.005f));
-		glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, glm::value_ptr(model));
-
+		transformDesk();
 		glBindTexture(GL_TEXTURE_2D, texture[3]);
 		glUseProgram(shaderProgram);
 		glBindVertexArray(VAO[3]);
 		glDrawArrays(GL_TRIANGLES, 0, VertexSize3);
 
 		//chair
-		model = glm::mat4(1.f);
-		model = glm::translate(model, glm::vec3(-0.56f, 0.0f, -0.4f));
-		model = glm::rotate(model, glm::radians(180.f), glm::vec3(0.f, 1.f, 0.f));
-		model = glm::scale(model, glm::vec3(0.4f, 0.4f, 0.4f));
-		glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, glm::value_ptr(model));
-
+		transformChair();
 		glBindTexture(GL_TEXTURE_2D, texture[4]);
 		glUseProgram(shaderProgram);
 		glBindVertexArray(VAO[4]);
 		glDrawArrays(GL_TRIANGLES, 0, VertexSize4);
 
 		//magic cube
-		model = glm::mat4(1.f);
-		model = glm::translate(model, glm::vec3(-0.35f, 0.27f, -0.8f));
-		model = glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));
-
-		glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, glm::value_ptr(model));
-
+		transformMagicCube();
 		glBindTexture(GL_TEXTURE_2D, texture[5]);
 		glUseProgram(shaderProgram);
 		glBindVertexArray(VAO[5]);
 		glDrawArrays(GL_TRIANGLES, 0, VertexSize5);
 
 		//wall
-		model = glm::mat4(1.f);
-
+		glm::mat4 model = glm::mat4(1.f);
 		glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, glm::value_ptr(model));
 
 		glBindTexture(GL_TEXTURE_2D, texture[5]);
 		glUseProgram(shaderProgram);
 		glBindVertexArray(VAO[6]);
 		glDrawArrays(GL_TRIANGLES, 0, VertexSize6);
+
+		//CreateGlobal(VAO[0], texture[0], VertexSize0);
+		//CreateGuitar(VAO[1], texture[1], VertexSize1);
+		//CreateFloor(VAO[2], texture[2], VertexSize2);
+		//CreateDesk(VAO[3], texture[3], VertexSize3);
+		//CreateChair(VAO[4], texture[4], VertexSize4);
+		//CreateMagicCube(VAO[5], texture[5], VertexSize5);
+		//CreateWall(VAO[6], texture[5], VertexSize6);
+
 
 
 		glBindVertexArray(0);

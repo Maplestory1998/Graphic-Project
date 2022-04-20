@@ -9,7 +9,7 @@
 #define _USE_MATH_DEFINES 
 #define DEG2RAD(n)	(n*(M_PI/180))
 
-void CreateGlobal(std::vector<float>& vertices, std::vector<unsigned int>& indices);
+void GetGlobalData(std::vector<float>& vertices, std::vector<unsigned int>& indices);
 
 
 #endif

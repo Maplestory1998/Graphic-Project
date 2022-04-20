@@ -11,7 +11,7 @@ const float radius = 0.5f;
 
 
 
-void CreateGlobal(vector<float> &vertices, vector<unsigned int> &indices)
+void GetGlobalData(vector<float> &vertices, vector<unsigned int> &indices)
 {
 	float x_pos = 0.f;
 	float step = 180.f /(float) num_segments;
