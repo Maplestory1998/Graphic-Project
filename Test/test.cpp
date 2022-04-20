@@ -13,6 +13,7 @@
 #include "ModelViewerCamera.h"
 #include "texture.h"
 #include "global.h"
+#include "FlyThroughCamera.h"
 
 //Directional Light
 glm::vec3 dLightDirection = glm::vec3(0.0f, -1.f, 0.0f);
@@ -26,14 +27,30 @@ glm::vec3 pLightColour = glm::vec3(1.f, 1.f, 1.f);
 //Spot Light
 glm::vec3 sLightDirection = glm::vec3(0.0f, -1.f, 0.0f);
 glm::vec3 sLightPos = glm::vec3(0.0f, 0.5f, 0.0f);
-glm::vec3 sLightColour = glm::vec3(1.f, 1.f, 1.f);
+glm::vec3 sLightColour = glm::vec3(1.f, 0.f, 0.f);
 
-
-//glm::vec3 lightDirection = glm::vec3(0.0f, -1.0f, 0.0f);
-//glm::vec3 lightPos = glm::vec3(0.f, -2.f, 0.f);
 
 glm::vec3 cube_pos = glm::vec3(0.0f, 0.0f, 0.0f);
-SCamera Camera;
+
+
+
+//ModelViewerCamera
+SCamera Camera1;
+//FlyThroughCamera.h
+SCamera Camera2;
+enum CameraType
+{
+	ModelViewer,
+	FlyThrough
+};
+
+CameraType Camera = ModelViewer;
+
+
+
+bool firstMouse = true;
+float prevMouseX;
+float prevMouseY;
 
 unsigned int shaderProgram;
 
@@ -269,7 +286,7 @@ int ProduceGuitar(unsigned int VAO, unsigned int VBO, vector<string>& text_file)
 	
 }
 
-void setViewProjection()
+void setViewProjection(SCamera &Camera)
 {
 	glm::mat4 view = glm::mat4(1.f);
 	view = glm::lookAt(Camera.Position, Camera.Position + Camera.Front, Camera.Up);
@@ -311,72 +328,116 @@ void processKeyboard(GLFWwindow* window)
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, true);
 
+	if (glfwGetKey(window, GLFW_KEY_C) == GLFW_PRESS)
+	{
+		Camera = Camera == ModelViewer ? FlyThrough : ModelViewer;
+	}
+
 	if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
 	{
-		sLightDirection = Camera.Front;
-		sLightPos = Camera.Position;
+		sLightDirection = Camera == ModelViewer? Camera1.Front : Camera2.Front;
+		sLightPos = Camera == ModelViewer ?  Camera1.Position : Camera2.Position;
 	}
 
-	bool cam_changed = false;
-	float x = 0.f, y = 0.f;
-	if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
+	if (Camera == ModelViewer)
 	{
-		x = 1.f;
-		y = 0.f;
-		cam_changed = true;
-	}
-	if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
-	{
-		x = -1.f;
-		y = 0.f;
-		cam_changed = true;
-	}
+		bool cam_changed = false;
+		float x = 0.f, y = 0.f;
+		if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
+		{
+			x = 1.f;
+			y = 0.f;
+			cam_changed = true;
+		}
+		if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
+		{
+			x = -1.f;
+			y = 0.f;
+			cam_changed = true;
+		}
 
-	if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
-	{
-		x = 0.f;
-		y = -1.f;
-		cam_changed = true;
-	}
+		if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
+		{
+			x = 0.f;
+			y = -1.f;
+			cam_changed = true;
+		}
 
-	if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
-	{
-		x = 0.f;
-		y = 1.f;
-		cam_changed = true;
-	}
+		if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
+		{
+			x = 0.f;
+			y = 1.f;
+			cam_changed = true;
+		}
 
-	if (glfwGetKey(window, GLFW_KEY_F) == GLFW_PRESS)
-	{
-		cam_dist += 0.002f;
-		cam_changed = true;
-	}
+		if (glfwGetKey(window, GLFW_KEY_F) == GLFW_PRESS)
+		{
+			cam_dist += 0.002f;
+			cam_changed = true;
+		}
 
-	if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS)
-	{
-		cam_dist -= 0.002f;
-		cam_changed = true;
-	}
+		if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS)
+		{
+			cam_dist -= 0.002f;
+			cam_changed = true;
+		}
 
-	if (cam_changed)
-	{
-		MoveAndOrientCamera(Camera, glm::vec3(0, 0, 0), cam_dist, x, y);
+		if (cam_changed)
+		{
+			MoveAndOrientCamera(Camera1, glm::vec3(0, 0, 0), cam_dist, x, y);
+		}
 	}
+	else {
 
+		if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)			MoveCamera(Camera2, SCamera::FORWARD);
+		if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)			MoveCamera(Camera2, SCamera::BACKWARD);
+		if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)			MoveCamera(Camera2, SCamera::LEFT);
+		if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)			MoveCamera(Camera2, SCamera::RIGHT);
+	}
 }
+
+void processMouse(GLFWwindow* window, double x, double y)
+{
+	if (Camera == ModelViewer)
+		return;
+
+	if (firstMouse)
+	{
+		prevMouseX = x;
+		prevMouseY = y;
+		firstMouse = false;
+	}
+
+	float dX = x - prevMouseX;
+	float dY = prevMouseY - y;
+
+	prevMouseX = x;
+	prevMouseY = y;
+
+	OrientCamera(Camera2, dX, dY);
+}
+
 
 
 int main(int argc, char** argv)
 {
 	GLFWwindow* window = CreateGLFWWindow(1920, 1080, "Test");
+	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+	glfwSetCursorPosCallback(window, processMouse);
+
+
+
+
 
 	gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
 
 	shaderProgram = LoadShader("mvp.vert", "test.frag");
 
-	InitCamera(Camera, 90.0f, 0);
-	MoveAndOrientCamera(Camera, glm::vec3(0, 0, 0), cam_dist, 0.f, 0.f);
+	InitCamera(Camera1, 90.0f, 0);
+	MoveAndOrientCamera(Camera1, glm::vec3(0, 0, 0), cam_dist, 0.f, 0.f);
 
+	InitCamera(Camera2, 90.f, 0);
+	OrientCamera(Camera2, 0.f, 0.f);
 
 	unsigned int VAO[7];
 	glGenVertexArrays(7, VAO);
@@ -422,7 +483,10 @@ int main(int argc, char** argv)
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
-		glUniform3f(glGetUniformLocation(shaderProgram, "camPos"), Camera.Position.x, Camera.Position.y, Camera.Position.z);
+		if(Camera == ModelViewer)
+			glUniform3f(glGetUniformLocation(shaderProgram, "camPos"), Camera1.Position.x, Camera1.Position.y, Camera1.Position.z);
+		else
+			glUniform3f(glGetUniformLocation(shaderProgram, "camPos"), Camera2.Position.x, Camera2.Position.y, Camera2.Position.z);
 
 		//Directional Light
 		glUniform3f(glGetUniformLocation(shaderProgram, "dLightDirection"), dLightDirection.x, dLightDirection.y, dLightDirection.z);
@@ -438,8 +502,10 @@ int main(int argc, char** argv)
 		glUniform3f(glGetUniformLocation(shaderProgram, "sLightPos"), sLightPos.x, sLightPos.y, sLightPos.z);
 		glUniform3f(glGetUniformLocation(shaderProgram, "sLightColour"), sLightColour.x, sLightColour.y, sLightColour.z);
 
-
-		setViewProjection();
+		if (Camera == ModelViewer)
+			setViewProjection(Camera1);
+		else
+			setViewProjection(Camera2);
 		/* 3D transform*/
 
 		//global
