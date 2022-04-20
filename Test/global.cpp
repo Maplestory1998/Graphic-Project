@@ -7,8 +7,6 @@
 using namespace std;
 
 const int num_segments = 128;
-const float radius = 0.5f;
-
 
 
 void GetGlobalData(vector<float> &vertices, vector<unsigned int> &indices)

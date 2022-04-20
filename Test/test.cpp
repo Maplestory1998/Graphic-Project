@@ -340,6 +340,19 @@ void processKeyboard(GLFWwindow* window)
 		Camera = Camera == ModelViewer ? FlyThrough : ModelViewer;
 	}
 
+	if (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS)
+	{
+		pLightColour.x = pLightColour.x >= 1.0f? 0.f : pLightColour.x + 0.01f;
+	}
+	if (glfwGetKey(window, GLFW_KEY_2) == GLFW_PRESS)
+	{
+		pLightColour.y = pLightColour.y >= 1.0f ? 0.f : pLightColour.y + 0.01f;
+	}
+	if (glfwGetKey(window, GLFW_KEY_3) == GLFW_PRESS)
+	{
+		pLightColour.z = pLightColour.z >= 1.0f ? 0.f : pLightColour.z + 0.01f;
+	}
+
 	//change the position of Spot Light into Camera Position;
 	if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
 	{
@@ -569,7 +582,6 @@ int main(int argc, char** argv)
 		//wall
 		glm::mat4 model = glm::mat4(1.f);
 		glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, glm::value_ptr(model));
-
 		glBindTexture(GL_TEXTURE_2D, texture[5]);
 		glUseProgram(shaderProgram);
 		glBindVertexArray(VAO[6]);
@@ -582,8 +594,6 @@ int main(int argc, char** argv)
 		//CreateChair(VAO[4], texture[4], VertexSize4);
 		//CreateMagicCube(VAO[5], texture[5], VertexSize5);
 		//CreateWall(VAO[6], texture[5], VertexSize6);
-
-
 
 		glBindVertexArray(0);
 

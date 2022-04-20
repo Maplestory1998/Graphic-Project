@@ -9,8 +9,6 @@
 #include <wingdi.h>
 
 
-
-
 GLuint loadbitmap(const char* filename, unsigned char*& pixelBuffer, BITMAPINFOHEADER* infoHeader, BITMAPFILEHEADER* fileHeader);
 
 #endif // !BITMAP_H

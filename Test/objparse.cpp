@@ -4,8 +4,6 @@
 #include <iostream>
 
 using namespace std;
-const int MAX_LINE_LEN = 128;
-
 
 inline void dealv(const string &buf, struct FileInfo &info, stringstream& ss)
 {
