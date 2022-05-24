@@ -23,7 +23,7 @@ struct SCamera
 	float Pitch;
 
 	const float MovementSpeed = .25f;
-	float MouseSensitivity = 1.f;
+	float MouseSensitivity = 0.25f;
 
 
 

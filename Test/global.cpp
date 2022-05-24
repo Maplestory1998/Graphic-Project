@@ -14,7 +14,7 @@ void GetGlobalData(vector<float> &vertices, vector<unsigned int> &indices)
 	float x_pos = 0.f;
 	float step = 180.f /(float) num_segments;
 
-	//x : jing   y : wei 
+	//x : jing   y : wei s
 
 
 	for (int x = 0; x <= num_segments; ++x)
